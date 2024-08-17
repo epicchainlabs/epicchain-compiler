@@ -1,0 +1,23 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {},
+  "postCreateCommand": "./setup_codespace.sh",
+  "postStartCommand": "./build_everything.sh",
+  "portsAttributes": {
+    "8000": {
+      "label": "eco-frontend"
+    },
+    "9000": {
+      "label": "eco-servicesss"
+    },
+    "10000": {
+      "label": "eco-compilers"
+    },
+    "20333-20337": {
+      "label": "tcp-c#-nodes"
+    },
+    "30333-30337": {
+      "label": "rpc-c#-nodes"
+    }
+  }
+}

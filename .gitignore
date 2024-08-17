@@ -1,0 +1,12 @@
+*~
+.Rhistory
+*.log
+/.idea
+node_modules
+.fuse*
+*.DS_Store
+*nohup*
+*.pdf
+.eco_pwd
+.env
+gitpod.txt

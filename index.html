@@ -1,0 +1,1563 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Neo Compiler - Compiling & Testing</title>
+    <meta charset="utf-8">
+    <meta name="NeoCompiler" content="A set of tools for developing and testing smart contracts on Neo blockchain.">
+    <meta name="author" content="NeoResearch">
+    <meta property="og:title" content="Neo Compiler - Compiling & Testing" />
+    <meta property="og:description"
+        content="A set of tools for developing and testing smart contracts on Neo blockchain." />
+    <meta property="og:image" itemprop="image" content="https://neocompiler.io/assets/neocompiler.png">
+    <meta property="og:url" content="https://neocompiler.io">
+    <link rel="icon" href="assets/neocompiler.png">
+    <link rel="stylesheet" href="assets/ux_css/bootstrap.min-5.3.2.css">
+    <link rel="stylesheet" href="assets/ux_css/style.css">
+    <link rel="stylesheet" href="assets/ux_css/fontawesome-free-6.4.2-web/css/all.min.css">
+    <link rel="stylesheet" href="assets/ux_css/sweetalert2-11-10-0.min.css">
+</head>
+
+<!--Big blue-->
+<div id="mdb-preloader" class="flex-center preloader">
+    <div class="preloader-wrapper active">
+        <div class="spinner-layer spinner-blue-only">
+            <div class="circle-clipper left">
+                <div class="circle"></div>
+            </div>
+            <div class="gap-patch">
+                <div class="circle"></div>
+            </div>
+            <div class="circle-clipper right">
+                <div class="circle"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<body>
+    <div class="preloader"
+        style="position: absolute;left: 0;top: 0;width: 100%;height: 100%;padding: 1px;background: #1D2C30;z-index: 1000000!important;">
+        <div class="spinner-grow text-center" style="width: 5rem; height: 5rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+
+    <!-- TOP INFO MENU -->
+    <ul class="nav top-info-menu">
+        <li class="nav-item text-white" style="width: 300px; padding-left: 10px;padding-top: 3px;">
+            <div>
+                <span id="nodeURL" class="label label-info spanHeader">
+                    <i class="fas fa-lg fa-spinner"></i></span>
+            </div>
+            <div>
+                <span id="nodeVersion" class="label label-info spanHeader">
+                    <i class="fas fa-lg fa-spinner"></i></span>
+            </div>
+            <div>
+                <span id="nodeHeight" class="label label-info spanHeader">
+                    <i class="fas fa-lg fa-spinner"></i></span>
+            </div>
+            <!--<div class="">
+                <span id="online" class="label label-success"
+                    style="font-size: 16px;background: #00AF92;padding:2px;"><i class="fas fa-lg fa-spinner"></i></span>
+            </div>-->
+        </li>
+    </ul>
+    <!-- TOP INFO MENU -->
+
+    <!-- BEGIN SELECTION OF NETWORK AND WALLET PROVIDER -->
+    <div class="options-in-the-header">
+        <div class="row">
+            <div class="col-7">
+                <select id="ecolabnetworkurlselection" onchange="changeToSelectedNetwork()" title="Select network"
+                    class="form-select" style="text-align: center!important;">
+                    <option selected>Personalized</option>
+                    <option>Localhost</option>
+                    <option>TestNet</option>
+                    <option>MainNet</option>
+                </select>
+            </div>
+            <div class="col-5">
+                <button type="button" id="button-connect-wallet" onClick="connectWallet()" class="btn btn-default btn-1"
+                    style="width: 200px;font-weight: bold!important;">CONNECT
+                    WALLET
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END SELECTION OF NETWORK AND WALLET PROVIDER -->
+
+    <!-- BEGIN UL FOR NAV MENU VERTICAL -->
+    <ul class="nav main-menu" role="tablist">
+        <li class="nav-item noHoverLogoNeoCompiler" style="border-bottom: 0px !important; 
+        padding-left: 16% !important; padding-right: 16% !important; height: 79px;">
+            <a class="nav-link" style="padding-top: 0px">
+                <img src="assets/neocompiler.png" style="height: 74px;">
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" onclick="" data-bs-toggle="tab" data-toggle="tab" href="#nav-compilers"
+                role="tab" aria-controls="nav-home" aria-selected="true">
+                <img src="./assets/icons/compilers.png" style="width: 35px; padding-bottom: 4px;">
+                <p id="compilerNav">Compilers</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" onclick="" data-bs-toggle="tab" data-toggle="tab" href="#nav-rpc" role="tab"
+                aria-controls="nav-home" aria-selected="true">
+                <img src="./assets/icons/raw.png" style="width: 35px;padding-bottom: 4px;">
+                <p>RPC API</p>
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" data-toggle="tab"
+                onclick="getNativeInfo(); updateWithDeployedContract();" href="#nav-contracts" role="tab"
+                aria-controls="nav-home" aria-selected="true">
+                <img src="./assets/icons/contracts.png" style="width: 35px; padding-bottom: 4px;">
+                <p>Contracts</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" onclick="populateAllWalletData()" data-bs-toggle="tab" data-toggle="tab"
+                href="#nav-wallet" role="tab" aria-controls="nav-home" aria-selected="true">
+                <img src="./assets/icons/walet.png" style="width: 35px;padding-bottom: 4px;">
+                <p>Wallet</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" onclick="drawRelayedTXs(); drawBlocks(true);" data-bs-toggle="tab" data-toggle="tab"
+                href="#nav-activity" role="tab" aria-controls="nav-home" aria-selected="true">
+                <img src="./assets/icons/activty.png" style="width: 35px;padding-bottom: 4px;">
+                <p>Activity</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" onclick="" data-bs-toggle="tab" data-toggle="tab" href="#nav-conversors" role="tab"
+                aria-controls="nav-home" aria-selected="true">
+                <img src="./assets/icons/conversus.png" style="width: 35px;padding-bottom: 4px;">
+                <p>Conversors</p>
+            </a>
+        </li>
+        <li class="nav-item" id="navItem-network">
+            <a class="nav-link" data-bs-toggle="tab" data-toggle="tab" href="#nav-network"
+                onclick="getNodeInfo(); getOracleInfo(); getStateInfo()" role="tab" aria-controls="nav-home"
+                aria-selected="true">
+                <img src="./assets/icons/consensus.png" style="width: 35px;padding-bottom: 4px;">
+                <p>Network</p>
+            </a>
+        </li>
+        <li class="nav-config" role="presentation">
+            <a class="nav-link" data-bs-toggle="tab" data-toggle="tab" onclick="" href="#nav-config" role="tab"
+                aria-controls="nav-home" aria-selected="true">
+                <img src="./assets/icons/settings.png" style="width: 35px;padding-bottom: 4px;">
+                <p>Config</p>
+            </a>
+        </li>
+    </ul>
+    <!-- END UL FOR NAV MENU VERTICAL -->
+
+    <!-- END HEADER AREA -->
+
+    <!-- BEGIN SINGLE PAGE CONTAINER PRINCIPAL -->
+    <div class="container">
+        <!-- tab-content for the nav-panel -->
+        <div class="tab-content">
+            <!-- SPACING ON THE LATERAL SIDE -->
+            <br><br><br>
+
+            <!-- BEGIN TAB-PANE COMPILERS -->
+            <div class="tab-pane fade show active" id="nav-compilers" role="tabpanel">
+                <nav class="nav-links" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a><i class="fas fa-home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <a><span class="spinner-grow spinner-grow-sm preloader" role="status"
+                                    aria-hidden="true"></span> Compilers</a>
+                        </li>
+                    </ol>
+                </nav>
+
+                <div class="container">
+                    <div class="row mb-2">
+                        <div class="col-md-8">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <select id="codesend_selected_compiler" class="form-select"
+                                        onchange="setCompilerAndExample()"
+                                        style="text-align: center!important;font-weight: bold!important;">
+                                        <option selected>C#</option>
+                                        <option>Python</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <select title="Select compiler version" id="compilers_versions-selection-box"
+                                        class="form-select"
+                                        style="text-align: center!important;font-weight: bold!important;">
+                                        <option title="Loading compilers">Loading...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-4">
+                                    <button type="button" id="compilebtn" onClick="compilerCall()"
+                                        style="text-align: center!important;font-weight: bold!important; width: 100%;"
+                                        class="btn btn-default btn-1 btn-1-darker"><i class="fas fa-hammer"></i> COMPILE
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" id="deleteContractBtn" onClick="askForDeletingContract()"
+                                        style="text-align: center!important;font-weight: bold!important; width: 100%;"
+                                        class="btn btn-default btn-1 btn-1-darker-danger"><i class="fa-solid fa-trash"></i>
+                                        Delete
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" id="saveContractBtn" onClick="askForSavingContracts(false)"
+                                        style="text-align: center!important;font-weight: bold!important; width: 100%;"
+                                        class="btn btn-default btn-1"><i
+                                            class="fa-solid fa-floppy-disk"></i>
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select checkedOption"
+                                style="text-align: center!important;font-weight: bold!important;"
+                                onchange="setExampleOnChange()" size="3" id="ExampleList">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs aceLITabs" id="navFiles">
+                    <li role="presentation" class="active"><a href="#nav-compilers/" onclick="goToACEMainTab()"
+                            id="mainTabAceEditor">Main.cs</a></li>
+                    <li role="presentation" id="addTabIcon" onclick="Editor.addNewTab()"><a href="#nav-compilers/"><i
+                                class="fa fa-plus-square" aria-hidden="true"></i></a></li>
+                </ul>
+
+                <div id="aceEditor"> </div>
+
+                <div class="collapse colapse-nef" id="collapseNEFAfterCompilation">
+                    <div class="generalContainer">
+                        <h4 style="font-size: 16px;">NEF (in hex):</h4>
+
+                        <div style="margin-bottom: 10px;">
+                            <textarea id="codeavm" name="codeavm" rows="5" cols="100" placeholder="NEF (in hex)"
+                                class="form-control"
+                                style="color: #0aab7b!important; background: none;border: none;resize: none;outline: none;">
+                            </textarea>
+                        </div>
+
+                        <!--
+                                    <div class="dropdown show">
+                                        <a class="btn btn-warning text-white dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="fas fa-upload"></i> AVM
+                                        </a>
+
+                                        <button onclick="GetOpcodes()" data-toggle="collapse" data-target="#opcodesDiv" type="button" class="btn btn-info collapsed">AVM OPCODES</button>
+                                        
+                                        <div id="downloadMenu" class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                            <a onclick="downloadAVM('0')" class="dropdown-item" href="#">binary code</a>
+                                            <a onclick="downloadAVM('1')" class="dropdown-item" href="#">hex code</a>
+                                        </div>
+
+                                        &nbsp;&nbsp;&nbsp; <i class="fas fa-upload"></i> AVM:
+                                        <input type="file" class="dropzone" id="importAVMFile" accept=".avm,.AVM" onchange="ImportAVM()">
+                                        <br>
+                                        <br>
+                                        <div class="collapse" id="opcodesDiv">
+                                            <div class="containerForCompilingResult" style="margin-bottom: 10px;height: 150px">
+                                                    <textarea id="txt_opcodes" readonly="readonly" rows="5" cols="100" placeholder="Listing AVM OpCodes" class="form-control" style="background: none;border: none;resize: none;outline: none;"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    -->
+                    </div>
+
+                    <div class="generalContainer">
+                        <h4 style="font-size: 16px;">Compiled contract info:</h4>
+                        <div class="containerForCompilingResult" style="background: transparent; padding: 10px">
+                            <label for="contractInfo_ScriptHash">ScriptHash</label>
+                            <input id="contractInfo_ScriptHash" readonly="readonly" name="contractInfo_ScriptHash"
+                                class="form-control" placeholder="Script Hash"
+                                style="width: 100%; margin-bottom: 10px;">
+
+                            <label for="contractInfo_Address">Address</label>
+                            <input id="contractInfo_Address" readonly="readonly" name="contractInfo_Address"
+                                class="form-control" placeholder="Address (base58)"
+                                style="width: 100%; margin-bottom: 10px;">
+
+
+                            <label for="contractInfo_AVMSize">AVM size (in bytes)</label>
+                            <input id="contractInfo_AVMSize" readonly="readonly" name="contractInfo_AVMSize"
+                                class="form-control" placeholder="AVM size (in bytes)"
+                                style="width: 100%; margin-bottom: 10px;">
+
+
+                            <h4 style="font-size: 16px;">ABI:</h4>
+                            <textarea id="textAreaCodeabi" readonly="readonly" rows="5" cols="100"
+                                placeholder="ABI (JSON format)" class="form-control"></textarea>
+
+                            <h4 style="font-size: 16px;">MANIFEST:</h4>
+                            <textarea id="codemanifest" readonly="readonly" rows="9" cols="100"
+                                placeholder="MANIFEST (JSON format)" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- END COLLAPSE MORE -->
+
+
+                <!--
+                            <span class="opts-compilers">
+                                    <label>
+                                <input type="checkbox"> Optimize opcodes with neo-avm-optimizer (BETA! USE WITH CAUTION!)
+                                    </label>
+                            </span>
+
+                            <span class="opts-compilers">
+                                    <label>
+                                <input type="checkbox" checked> Compatible
+                                    </label>
+                                </span>
+                            -->
+
+                <div class="generalContainer">
+                    <div class="containerForCompilingResult" style="margin-bottom: 30px; padding: 10px;">
+                        <h4 style="font-size: 16px;">Compiler Output (Warning/Errors):</h4>
+                        <textarea id="codewarnerr" readonly="readonly" rows="10" class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- PAGINA Contracts INICIO -->
+            <div class="tab-pane fade" id="nav-contracts" role="tabpanel">
+                <nav class="nav-links" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a><i class="fas fa-home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page"><a> Contracts</a></li>
+                    </ol>
+                </nav>
+
+                <div class="generalContainer">
+                    <div class="standardContainer">
+                        <h4 class="green-title">
+                            Contracts
+                        </h4>
+                        <div class="container">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="contract_hash">Contract ScriptHash</label>
+                                        <input id="contract_hash" name="contract_hash" readonly class="form-control"
+                                            placeholder="Script Hash">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="contract_name">Name</label>
+                                        <input id="contract_name" name="contract_name" readonly class="form-control"
+                                            placeholder="Contract name">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <input id="storage_key" name="storage_key" class="form-control"
+                                        placeholder="Storage Key" style="width: 100%;">
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="button" id="btnGetStorage" style="width: 100%;" onClick="getStorage()"
+                                        class="btn btn-success btn-1"><i class="fas fa-file-contract"></i> Get
+                                        Storage</button>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 collapse" id="collapseLocalContractsOptions">
+                                <div class="col-md-4">
+                                    <button type="button" id="btnNewContractDeloy" onClick="deployContract()"
+                                        class="btn btn-success btn-1-noColor"><i class="fas fa-file-contract"></i>
+                                        Deploy Contract</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" id="btnNewContractToWallet"
+                                        onClick="addContractToWallet($('#contract_hash').val())"
+                                        class="btn btn-success btn-1-noColor"><i class="fas fa-wallet"></i>
+                                        Import to
+                                        wallet</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" id="btnRemoveLocalContract" onClick="deleteLocalContract()"
+                                        class="btn btn-danger btn-1-noColor"><i class="fas fa-trash"></i>
+                                        Remove
+                                        local contract</button>
+                                </div>
+                            </div>
+
+
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <label>Native Contracts</label>
+                                    <button type="submit" onclick="refreshNativeContracts()"
+                                        class="btn btn-info btn-sm"><i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Local
+                                        Contracts
+                                    </label>
+                                    <button type="button" id="button-refreshWithPendingContracts"
+                                        onclick="updateWithDeployedContract()" class="btn btn-1 btn-sm">
+                                        Pending Contracts: 0 <i class="fas fa-sync-alt"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <select id="native_contracts" name="native_contracts"
+                                            onchange="createNativeManifest()" class="form-select checkedOption"
+                                            size="8"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <select id="local_contracts" name="local_contracts"
+                                            onchange="createLocalManifest()" class="form-select checkedOption"
+                                            size="8"></select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2 collapse show" id="hidden_notification_contracts">
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <label for="native_methods">ABI Methods</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="notification_contracts">Additional Contracts</label>
+                                        <button type="submit" onclick="btnAdditionalContractsSave()"
+                                            class="btn btn-success btn-sm">
+                                            Save <i class="fas fa-save"></i>
+                                        </button>
+                                        <button type="submit" onclick="btnAdditionalContractsClean()"
+                                            class="btn btn-danger btn-sm">
+                                            Clean List <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <select onchange="drawParametersTable()" id="contract_methods"
+                                                class="form-select checkedOption" size="8"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <select id="notification_contracts" name="notification_contracts"
+                                                onchange="createNotificationManifest()"
+                                                class="form-select checkedOption" size="8"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <table id="tableNativeParameters" class="table text-white twalllet">
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <button type="button" style="width: 100%;" onclick="invokeFunction()"
+                                        class="btn btn-1"><i class="fas fa-cubes"></i>
+                                        InvokeFunction </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="generalContainer">
+                    <div class="standardContainer" style="margin-bottom: 30px;">
+                        <h4 class="green-title">
+                            Import Contract
+                            <button type="button" onclick="saveLocalContract();" id="btnAddNewAccount"
+                                class="btn btn-success btn-sm">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </h4>
+                        <div class="container">
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <input id="import_contract_hash" name="import_contract_hash" class="form-control"
+                                        placeholder="Contract Script Hash (example: 0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGINA RPC INICIO -->
+            <div class="tab-pane fade" id="nav-rpc" role="tabpanel">
+                <nav class="nav-links" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a><i class="fas fa-home "></i></a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page"><a>RPC</a></li>
+                    </ol>
+                </nav>
+
+                <div class="generalContainer">
+                    <div class="standardContainer" style="margin-bottom: 30px;">
+                        <h4 class="green-title">Request from Neo C# nodes (RPC-JSON API)</h4>
+                        <div class="container">
+
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <!-- <label for="rpcMethodSelectionBox">
+                                        Method (view <a href="https://docs.neo.org/en-us/node/cli/apigen.html"
+                                            target="_blank">Official API</a> or put cursor on top for
+                                        tooltip)</label> -->
+                                    <select id="rpcMethodSelectionBox" class="form-select checkedOption"
+                                        onchange="frmRPCJson()" size="3">
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <button id="rawRpcPostCallButton" onclick="rawRpcCall()" style="width: 100%"
+                                        class="btn btn-default btn-1">
+                                        <i class="fas fa-phone"></i> Post to RPC
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="collapse" id="signAndRelayDivCollapse">
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <label for="tableSigners">Signers</label>
+                                        <table id="tableSigners" class="table text-white twalllet">
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <label for="net_fee">Network Fees</label>
+                                        <input type="number" id="net_fee" step="0.00000001" size="10" value="0"
+                                            class="form-control" required="">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="sys_fee">System Fees</label>
+                                        <input type="number" id="sys_fee" step="0.00000001" size="10" value="0"
+                                            class="form-control" required="">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="valid_until">Valid Until</label>
+                                        <input type="number" id="valid_until" step="1" size="10" value="0"
+                                            class="form-control" required="">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-default btn-1 btn-1-darker"
+                                            onclick="findNetworkFee()">
+                                            <i class="fa-solid fa-bug-slash"></i> Optimize Net. Fee
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <label for="tx_script">Script</label>
+                                        <textarea id="tx_script" rows="2" cols="100" placeholder="Transaction Script"
+                                            style="background: none;border: none;resize: none;outline: none;color: #0aab7b!important;"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-md-12">
+                                        <button disabled type="button" id="relay_btn" style="width: 100%"
+                                            class="btn btn-default btn-1 btn-1-darker" onclick="signAndRelay()">
+                                            <i class="fa-solid fa-signature"></i> Sign and Relay to Blockchain
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <label for="txtRPCJson">Request parameters</label>
+                                    <input id="txtRPCJson" name="contracthash" class="form-control"
+                                        placeholder="RPC call (pick a method)">
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <textarea id="txtRPCJsonOut" rows="7" class="form-control"></textarea>
+                                </div>
+                            </div>
+
+                            <!--<div class="row mb-2">
+                                <div class="col-md-12">
+                                    <button type="button" style="width: 100%" class="btn btn-default btn-1"
+                                        onclick="convertJsonNotifications()"><i class="fas fa-exchange-alt"></i>
+                                        Get Notifications</button>
+                                </div>
+                            </div> -->
+
+                            <div class="row mb-2">
+                                <div class="collapse col-md-12" id="collapseNotifications">
+                                    <textarea id="txt_notifications"
+                                        style="margin-left: 5px; margin-bottom: 20px; margin-top: 5px;background: #00AF92;color: white!important;border:none;resize: none;outline: none;width: 100%;"
+                                        readonly="readonly" rows="6"
+                                        placeholder="Notifications/Events are listed here."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- PAGINA ACTIVITY INICIO -->
+            <div class="tab-pane fade" id="nav-activity" role="tabpanel">
+                <nav class="nav-links" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a><i class="fas fa-home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page"><a>Activity</a></li>
+                    </ol>
+                </nav>
+
+                <div class="generalContainer">
+                    <div class="standardContainer">
+                        <h4 class="green-title">Historical Relayed TX's
+                            <button type="submit" onclick="drawRelayedTXs()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i>
+                            </button>
+                            <button type="submit" onclick="cleanAllRelayedTxs()" class="btn btn-danger btn-sm">
+                                Delete All <i class="fas fa-trash"></i>
+                            </button>
+                        </h4>
+                        <div class="container">
+                            <div class="row" style="padding:0 20px 0 20px;">
+                                <table id="tableRelayedTxs" class="table text-white twalllet">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="generalContainer">
+                    <div class="standardContainer">
+                        <h4 class="green-title">Blocks <button type="submit" onclick="drawBlocks()"
+                                class="btn btn-info btn-sm"><i class="fas fa-sync-alt"></i></button>
+
+
+                            <div class="input-group" style="margin-top: 3px;">
+                                <input id="search_blockchain"
+                                    placeholder="Search for block height, address or transaction ID"
+                                    class="form-control" value="">
+                                <button type="submit" onclick="searchAsAScan()" class="btn btn-info btn-sm"><i
+                                        class="fa-brands fa-searchengin"></i></button>
+                            </div>
+
+                            <div class="progress" style="margin-top: 3px;">
+                                <div class="progress-bar-striped bg-success" role="progressbar"
+                                    aria-label="Success example" style="background-color:#00AF92!important; width: 100%"
+                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" id="progressBarBlocks">
+                                </div>
+                                <small id="progressBarBlocksText" style="color: black;"
+                                    class="justify-content-center d-flex position-absolute w-100">100%
+                                    complete</small>
+                            </div>
+                        </h4>
+
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="blocks_end_get">Last</label>
+                                        <input id="blocks_end_get" class="form-control" value="">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="blocks_count_get">Count</label>
+                                        <input id="blocks_count_get" class="form-control" value="">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group form-check form-switch">
+                                        <label for="blocks_count_get_min_tx">Min. Txs.</label>
+                                        <input id="blocks_count_get_min_tx" class="form-control" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container">
+                            <div class="row" style="padding:0 20px 0 20px;">
+                                <table id="tableBlocks" class="table text-white twalllet">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGINA WALLET INICIO -->
+            <div class="tab-pane fade" id="nav-wallet" role="tabpanel">
+                <nav class="nav-links" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a><i class="fas fa-home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page"><a>Wallet</a></li>
+                    </ol>
+                </nav>
+
+                <div class="generalContainer">
+                    <div class="standardContainer">
+                        <h4 class="green-title">Wallet
+                            <button type="submit" onclick="populateAllWalletData()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i>
+                            </button>
+                            <!--
+                            <button type="submit" onclick="btnWalletSave()" id="btnWalletSaveID" class="btn btn-success btn-sm">
+                                Save <i class="fas fa-save"></i>
+                            </button>
+                            -->
+                            <button type="submit" disabled onclick="btnWalletClean()" id="btnWalletCleanID"
+                                class="btn btn-danger btn-sm">
+                                Clean Extra <i class="fas fa-trash"></i>
+                            </button>
+                            <button type="submit" disabled onclick="restoreWalletExtraAccountsLocalStorage()"
+                                id="btnLoadSavedAccount" class="btn btn-danger btn-sm">
+                                Load Saved Accounts <i class="fas fa-trash"></i>
+                            </button>
+                        </h4>
+                        <div class="container">
+                            <div class="row" style="padding:0 20px 0 20px;">
+                                <table id="tableWalletStatus" class="table text-white twalllet">
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse generalContainer" id="transferNep17ModuleCollapse">
+                    <div class="standardContainer">
+                        <h4 class="green-title">Transfer NEP17 Tokens
+                        </h4>
+                        <div class="container">
+                            <div class="row mb-2">
+                                <div class="col align-self-center text-center">
+                                    <label id="labelForTransferAmount" style="font-size: 20px!important;">
+                                        Transferring ?</label>
+                                    <label id="labelForTransferAsset" style="font-size: 20px!important;"></label>
+                                    <label id="labelForTransferFrom" style="font-size: 20px!important;"></label>
+                                    <label id="labelForTransferTo" style="font-size: 20px!important;">To</label>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <select name="createtx_to" onchange="fillTransferToLabel()" id="createtx_to"
+                                        class="form-select" size="3"></select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <select class="form-select" id="nep17_asset"
+                                        onchange="updateTransferAssetInfo()"></select>
+                                </div>
+                                <div class="col-3">
+                                    <input type="range" class="form-range"
+                                        onchange="updateTransferAmountInfoFromPercentage()"
+                                        id="transfer_nep17_amount_range" value="0" min="0" max="100" />
+                                </div>
+                                <div class="col-3">
+                                    <input type="number" class="form-control" onchange="updateTransferAmountInfo()"
+                                        id="transfer_nep17_amount" value="0" min="0"></input>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <button type="button" onclick="createNep17Tx()" id="createTransferButton"
+                                        style="width: 100%" class="btn btn-default btn-1">
+                                        <i class="fa-solid fa-money-bill-transfer"></i> Create Transfer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="generalContainer">
+                    <div class="standardContainer" id="RegisterAddress" style="margin-bottom: 30px;">
+                        <h4 class="green-title">Import account
+                            <button type="button" onclick="addWalletFromForm();" id="btnAddNewAccount"
+                                class="btn btn-success btn-sm"><i class="fas fa-user-plus"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row mb-2">
+                                <div class="col-6 col-md-4">
+                                    <select id="type_to_register" class="form-select">
+                                        <option value="address">Address (17 bytes) - WatchOnly </option>
+                                        <option value="scripthash">ScriptHash (20 bytes) - WatchOnly
+                                        </option>
+                                        <option value="publickey">PublicKey (33 bytes)</option>
+                                        <option value="wif">WIF (26 bytes)</option>
+                                        <option value="privatekey">PrivateKey (32 bytes)</option>
+                                        <option value="encryptedkey">EncryptedKey (29 bytes)</option>
+                                        <option value="multisig">MultiSig Verification (?bytes)</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-6 col-md-4">
+                                    <input class="form-control" placeholder="Key" type="text" id="accountToAddInfo"
+                                        maxlength="64" value="" size="20">
+                                </div>
+
+                                <div class="col-6 col-md-4">
+                                    <input class="form-control" placeholder="Account label" type="text"
+                                        id="accountLabelToAddInfo" value="" size="20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+            </div>
+
+
+            <!-- PAGINA CONVERSORS INICIO -->
+            <div class="tab-pane fade" id="nav-conversors" role="tabpanel">
+                <nav class="nav-links" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a><i class="fas fa-home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page"><a>Conversors</a></li>
+                    </ol>
+                </nav>
+
+
+                <div class="generalContainer">
+                    <div class="standardContainer">
+                        <h4 class="green-title">String
+                            <-> Hex
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label for="strhex_str">String</label>
+                                        <input id="strhex_str" oninput="str2hex()" class="form-control"
+                                            placeholder="String" oninput="str2hex()">
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label for="strhex_hex">Hex</label>
+                                        <input id="strhex_hex" oninput="hex2str()" class="form-control"
+                                            placeholder="Hex" oninput="hex2str()">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="hex_length">Length (in bytes)</label>
+                                        <input id="hex_length" class="form-control" placeholder="Length (in bytes)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Hex
+                            <-> xeH
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="hexxeh_hex">Hex</label>
+                                        <input id="hexxeh_hex" oninput="hex2xeh()" class="form-control"
+                                            placeholder="Hex" oninput="hex2xeh()">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="hexxeh_xeh">xeH</label>
+                                        <input id="hexxeh_xeh" oninput="xeh2hex()" class="form-control"
+                                            placeholder="xeH" oninput="xeh2hex()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Base64
+                            <-> Hex
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="b64hx_base64_hex">Base64</label>
+                                        <input id="b64hx_base64_hex" oninput="b64hx()" class="form-control"
+                                            placeholder="Base64">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="b64hx_hex_base64">Hex</label>
+                                        <input id="b64hx_hex_base64" oninput="hxb64()" class="form-control"
+                                            placeholder="Hex">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Number
+                            <-> Fixed8 Hex
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="fx8_number">Number</label>
+                                        <input type="number" oninput="num2fixed8()" id="fx8_number" class="form-control"
+                                            placeholder="Number" oninput="num2fixed8()">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="fx8_hex">Fixed8</label>
+                                        <input id="fx8_hex" oninput="fixed82num()" class="form-control"
+                                            placeholder="Fixed8 hex" oninput="fixed82num()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Address
+                            <-> ScriptHash (big endian)
+                        </h4>
+                        <div class="container">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="address_conversor">Address</label>
+                                        <input id="address_conversor" oninput="address2scripthash()"
+                                            class="form-control" placeholder="Address" oninput="address2scripthash()"
+                                            aria-describedby="address_conversor_db">
+                                        <small id="address_conversor_db" class="form-text text-muted">Address</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="scripthash_conversor">ScriptHash (big endian, should
+                                            start
+                                            with 0x)</label>
+                                        <input id="scripthash_conversor" oninput="scripthash2address()"
+                                            class="form-control" placeholder="ScriptHash"
+                                            oninput="scripthash2address()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">BigInteger
+                            <-> Little-Endian ByteArray
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="convert_bigint">BigInteger</label>
+                                        <input id="convert_bigint" class="form-control" placeholder="BigInteger"
+                                            oninput="conv_bigint2lebytearray()">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="convert_bytearray">Little-Endian
+                                            ByteArray</label>
+                                        <input id="convert_bytearray" class="form-control"
+                                            placeholder="Little Endian ByteArray" oninput="conv_lebytearray2bigint()">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Hex String -> Hash</h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="convert_string_hash">Hex String</label>
+                                        <input id="convert_string_hash" class="form-control"
+                                            placeholder="Input String to Hash" oninput="conv_string_hash()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="convert_string_hash160"
+                                            title="Scripthash little endian format">Hash160</label>
+                                        <input id="convert_string_hash160" class="form-control"
+                                            placeholder="Hash160 (Sha256+Ripemd160)" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="convert_string_sha256">Hex Sha256</label>
+                                        <input id="convert_string_sha256" class="form-control" placeholder="Sha256"
+                                            readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="convert_string_hash256">Hash256</label>
+                                        <input id="convert_string_hash256" class="form-control"
+                                            placeholder="Hash256 (Sha256+Sha256)" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--
+                            <div class="standardContainer" style="height: 420px;">
+                                <h4 class="green-title">Disassembly opcodes</h4>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="container">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="avmcode">AVM hex</label>
+                                                        <textarea id="avmcode" class="form-control" placeholder="AVM code" oninput="Disassembly()" style="width: 100%;background: none; border:none; border-bottom: 5px solid #00AF92; resize: none;  outline: none; color: white;"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="sc_scripthash">ScriptHash (big endian, starting with
+                                                        0x)</label>
+                                                    <input type="text" id="sc_scripthash" class="form-control" placeholder="Script Hash" style="width: 100%;background: none; border:none; border-bottom: 5px solid #00AF92; resize: none;  outline: none; color: white;">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="sc_address58">Address</label>
+                                                    <input type="text" id="sc_address58" class="form-control" placeholder="Address (Base58)" style="width: 100%;background: none; border:none; border-bottom: 5px solid #00AF92; resize: none;  outline: none; color: white;">
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="opcodes">OpCodes</label>
+                                                        <textarea id="opcodes" class="form-control" rows="5" cols="100" style="width: 100%;background: none; border:none; border-bottom: 5px solid #00AF92; resize: none;  outline: none; color: white;"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        -->
+                </div>
+            </div>
+
+            <!-- PAGINA CONSENSUS INICIO -->
+            <div class="tab-pane fade" id="nav-network" role="tabpanel">
+                <nav class="nav-links" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a><i class="fas fa-home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page"><a>Network</a></li>
+                    </ol>
+                </nav>
+
+                <div class="generalContainer">
+                    <div class="standardContainer" style="height: 140px;">
+                        <h4 class="green-title">Filter Logs
+                            <button type="submit" onclick="getSpecificNodeHeightInfoFromForm()"
+                                class="btn btn-info btn-sm">
+                                <i class="fas fa-sync-alt">
+                                </i>
+                            </button>
+                        </h4>
+
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="height_filter_log">Height</label>
+                                        <input id="height_filter_log" class="form-control" value="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="lines_filter_log">Number Lines</label>
+                                        <input id="lines_filter_log" class="form-control" value="10">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="year_filter_log">Year</label>
+                                        <input id="year_filter_log" class="form-control" value="" placeholder="2022">
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <label for="day_filter_log">Day</label>
+                                        <input id="day_filter_log" class="form-control" value="" placeholder="01">
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <label for="month_filter_log">Month</label>
+                                        <input id="month_filter_log" class="form-control" value="" placeholder="12">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="select_log_filter">Search All</label>
+                                        <select id="searchNodeStatusFilter" onchange="getAllFilteredNodeInfo()"
+                                            title="Select network" class="form-select"
+                                            style="text-align: center!important;">
+                                            <option selected disabled>Select filter</option>
+                                            <option>OnStop</option>
+                                            <option>OnStart</option>
+                                            <option>Error</option>
+                                            <option>null</option>
+                                            <!--<option disabled>MainNet</option>-->
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Node1
+                            <button type="submit" onclick="getNodeInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="container">
+                                    <div class="col-md-12">
+                                        <textarea id="node1data" class="form-control" style="font-size: 12px;" rows="15"
+                                            readonly=""></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Node2
+                            <button type="submit" onclick="getNodeInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="node2data" class="form-control" style="font-size: 12px;" rows="15"
+                                        readonly=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Node3
+                            <button type="submit" onclick="getNodeInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="node3data" class="form-control" style="font-size: 12px;" rows="15"
+                                        readonly=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Node4
+                            <button type="submit" onclick="getNodeInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="node4data" class="form-control" style="font-size: 12px;" rows="15"
+                                        readonly=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">NodeRPC(WatchOnly)
+                            <button type="submit" onclick="getNodeInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="noderpcdata" class="form-control" style="font-size: 12px;" rows="15"
+                                        readonly=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Oracle Service
+                            <button type="submit" onclick="getOracleInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                            <button type="submit" onclick="setRole(8)" class="btn btn-danger btn-sm">Elect
+                                Oracle <i class="fas fa-vote-yea"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="oracleservicedata" class="form-control" style="font-size: 12px;"
+                                        rows="15" readonly=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">OracleHttpsProtocol
+                            <button type="submit" onclick="getOracleInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="oraclehttpsprotocoldata" class="form-control" style="font-size: 12px;"
+                                        rows="15" readonly=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Verification Service
+                            <button type="submit" onclick="getStateInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                            <button type="submit" onclick="setRole(4)" class="btn btn-danger btn-sm">Elect
+                                StateService <i class="fas fa-vote-yea"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="verificationservicedata" class="form-control" style="font-size: 12px;"
+                                        rows="15" readonly=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="standardContainer">
+                        <h4 class="green-title">Verification Context
+                            <button type="submit" onclick="getStateInfo()" class="btn btn-info btn-sm"><i
+                                    class="fas fa-sync-alt"></i></button>
+                        </h4>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="verificationcontextdata" class="form-control" style="font-size: 12px;"
+                                        rows="15" readonly=""></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END NETWORK -->
+
+            <!-- BEGIN CONFIG -->
+            <div class="tab-pane fade" id="nav-config" role="tabpanel">
+                <nav class="nav-links" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="page"><a><i class="fas fa-home"></i></a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page"><a> Config</a></li>
+                    </ol>
+                </nav>
+
+                <div class="generalContainer">
+                    <div class="standardContainer">
+                        <h4 class="green-title">
+                            RPC
+                        </h4>
+
+                        <div class="container">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <button type="button" id="btnAddNode" style="width: 100%;" onClick="addNewRPCNode()"
+                                        class="btn btn-success btn-1">
+                                        <i class="fa-solid fa-plus"></i> Add RPC Node
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <input id="newnode_url" class="form-control"
+                                        placeholder="New RPC Node (https://node.to.add)" style="width: 100%;">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <select id="rpc_nodes_list" name="rpc_nodes" onchange="changeRPCHeaderURL()"
+                                        class="form-select checkedOption" size="3"
+                                        style="text-align: center!important;font-weight: bold!important;"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="generalContainer">
+                    <div class="standardContainer">
+                        <h4 class="green-title">
+                            Compiler Service
+                        </h4>
+                        <div class="container">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <button type="button" id="btnAddCompilationService" style="width: 100%;"
+                                        onClick="addNewCompilationService()" class="btn btn-success btn-1">
+                                        <i class="fa-solid fa-plus"></i> Add Compilation Service
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <input id="newCompilation_url" class="form-control"
+                                        placeholder="New Compilation Service (https://compilerServer.to.add)"
+                                        style="width: 100%;">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <select class="form-select checkedOption"
+                                        style="text-align: center!important;font-weight: bold!important;"
+                                        id="compiler_list" onchange="changeBasePathCompilers()" size="2">
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END CONFIG -->
+        </div>
+        <!-- END SINGLE PAGE TAB CONTENT -->
+    </div>
+    <!-- END SINGLE PAGE MAIN CONTAINER -->
+
+    <div id="hidetutorial"></div>
+    <a onclick="removetutorial()" id="closetutorial"
+        style="position: absolute;z-index: 10000000;opacity: 1;right: 0;top: 10%" class="btn btn-danger"><i
+            class="fas fa-caret-right"></i> <i class="fas fa-caret-right"></i> Close Tutorial</a>
+    <a onclick="nextTutorial()" id="nexttutorial"
+        style="position: absolute;z-index: 10000000;opacity: 1;right: 0;top: 15%" class="btn btn-primary"><i
+            class="fas fa-caret-right"></i> <i class="fas fa-caret-right"></i> Next</a>
+</body>
+
+
+<!-- Loading UX Scripts -->
+<script src="assets/ux_js/jquery-3.6.1.min.js"></script>
+
+<script src="assets/ux_js/bootstrap.bundle.min-5.3.2.js"></script>
+
+
+<!-- GET min no conflict direct from https://github.com/ajaxorg/ace-builds-->
+<script src="assets/ux_js/ace-v1.5.0-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="assets/ux_js/ace-v1.5.0-min-noconflict/ext-language_tools.js" type="text/javascript"
+    charset="utf-8"></script>
+
+<script src="assets/ux_js/sweetalert2-11-10-0.all.min.js" type="text/javascript"></script>
+
+<!-- Load Neon-JS Browser version tools https://unpkg.com/@cityofzion/neon-js@5.0.0-next.4/dist/browser.js -->
+<!-- Generate local by cloning github and running: yarn lint, build and dist:prod -->
+<script src="assets/third_party_js/neon-js-browser-next-16-min.js"></script>
+
+<!-- Load socket-io-->
+<script src="assets/third_party_js/socket.io-4.5.3.js"></script>
+
+<!-- LOADING UX Only specialized interface scritps -->
+<script src="assets/ux_js/ux-scripts.js"></script>
+
+<!-- DYNAMIC ASSETS OF IDS -->
+<script type="text/javascript" src="assets/info/personalized.js"></script>
+<script type="text/javascript" src="assets/info/localhost.js"></script>
+<script type="text/javascript" src="assets/info/testnet.js"></script>
+<script type="text/javascript" src="assets/info/mainnet.js"></script>
+
+<!-- LOADING Global Vars -->
+
+<script src="assets/eco-scripts/headerInfoWebSocket.js"></script>
+
+<script src="assets/eco-scripts/config.js"></script>
+
+<script src="assets/eco-scripts/global_var.js"></script>
+
+<script src="assets/eco-scripts/accounts.js"></script>
+
+<!-- Loading ACE Scripts -->
+<script src="assets/eco-scripts/aceScripts.js"></script>
+
+
+<!-- Loading Tab Routes - Pure JS -->
+<script src="assets/eco-scripts/tab-routes.js"></script>
+
+<!-- Consensus node info -->
+<script src="assets/eco-scripts/consensus-info.js"></script>
+
+<!-- Zip compression library -->
+<script src="assets/third_party_js/jszip.min.js"></script>
+
+<!-- O3 neo3 dapi package -->
+<script src="assets/third_party_js/neo3-dapi.min.js"></script>
+
+
+<!-- thirdparty 'assets' csbiginteger wasm -->
+<script defer src="assets/lib-csbiginteger.js"></script>
+
+<!-- eco-scripts -->
+
+<script src="assets/eco-scripts/crypto.js"></script>
+<script src="assets/eco-scripts/helper.js"></script>
+
+<script src="assets/eco-scripts/abi_manager.js"></script>
+
+<script src="assets/eco-scripts/compile_codes_localStorage.js"></script>
+
+<script src="assets/eco-scripts/activity_localStorage.js"></script>
+
+<script src="assets/eco-scripts/contracts_localStorage.js"></script>
+
+<script src="assets/eco-scripts/wallet_localStorage.js"></script>
+
+<script src="assets/eco-scripts/compile.js"></script>
+
+<script src="assets/eco-scripts/opcodes.js"></script>
+
+<script src="assets/eco-scripts/rpcMethods.js"></script>
+
+<script src="assets/eco-scripts/rawRpc.js"></script>
+
+<script src="assets/eco-scripts/socket.js"></script>
+
+<script src="assets/eco-scripts/balances_query_neocli.js"></script>
+
+<script src="assets/eco-scripts/accounts_helper.js"></script>
+
+<!-- DAPI NeoLine Basic NEOLINE AND O3 SHARED FUNCTIONS-->
+<script src="assets/eco-scripts/0_dapi_common.js"></script>
+
+<!-- DAPI NeoLine Basic Event-->
+<script src="assets/eco-scripts/0_dapi_NeoLine.js"></script>
+
+<!-- DAPI O3 Basic Event -->
+<script src="assets/eco-scripts/0_dapi_O3.js"></script>
+
+<script src="assets/eco-scripts/wallet_center.js"></script>
+
+<script src="assets/eco-scripts/wallet_addNewAccounts.js"></script>
+
+<script src="assets/eco-scripts/transferAsset_NeonJS.js"></script>
+
+<script src="assets/eco-scripts/conversors.js"></script>
+
+<script src="assets/eco-scripts/contracts.js"></script>
+
+<script src="assets/eco-scripts/relayed_txs.js"></script>
+
+<script src="assets/eco-scripts/blocks.js"></script>
+
+<script src="assets/eco-scripts/network_nodes.js"></script>
+
+<script src="assets/eco-scripts/blink.js"></script>
+
+<script src="assets/eco-scripts/local_storage.js"></script>
+
+<script src="assets/eco-scripts/tutorial.js"></script>
+
+<script src="assets/eco-scripts/roleManagementAPI.js"></script>
+
+<script src="assets/eco-scripts/swal2.js"></script>
+
+
+<!-- First Load all Pending HTML on other files - TODO Maybe move this up -->
+<script>
+    window.onload = function exampleFunction() {
+        //Finishes Ace SETUP
+        aceEditor = createEditor("aceEditor", "ace/mode/csharp");
+        openedSessions.set(-1, new ace.EditSession("mainSession"));
+        goToACEMainTab();
+
+        loadSmartContractExamplesFromLocalStorage();
+
+        // Setup Base Baths
+        changeToSelectedNetwork();
+
+        //Initialize Socket IO
+        startSocketIoConnections();
+
+        // Set header refrishing interval
+        setRefreshingIntervalForHeadersInfo(2000); //2s
+
+        createMultiSigFromNextValidators();
+
+        /* Restore Account from Local Storage */
+        restoreWalletExtraAccountsLocalStorage();
+        drawPopulateAllWalletAccountsInfo();
+
+        //Add JSON RpcMethod to box
+        addJsonRPCMethodsToSelectionBox();
+
+        // Restores relayed txs from LocalStorage
+        restoreRelayedTxsFromLocalStorage();
+
+        // Call tutorial
+        if (getLocalStorage("disabledTutoral") != "1")
+            nextTutorial();
+    }
+</script>
+
+</html>

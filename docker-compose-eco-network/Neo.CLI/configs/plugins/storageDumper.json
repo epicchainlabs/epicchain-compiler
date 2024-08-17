@@ -1,0 +1,9 @@
+{
+  "PluginConfiguration": {
+    "PersistAction": "StorageChanges",
+    "BlockCacheSize": 1,
+    "HeightToBegin": 0,
+    "StoragePerFolder": 100000,
+    "Exclude": [ -4 ]
+  }
+}
